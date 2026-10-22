@@ -10,6 +10,7 @@ Uso:    python3 simulacion_hidraulica.py
 """
 import os
 import subprocess
+import wave
 from multiprocessing import Pool
 
 import matplotlib
@@ -22,6 +23,7 @@ from matplotlib.colors import LightSource
 from matplotlib.ticker import MaxNLocator
 from rasterio.windows import from_bounds
 from scipy.ndimage import map_coordinates
+from scipy.signal import butter, sosfilt
 from scipy.spatial import cKDTree
 from skimage.graph import route_through_array
 
@@ -45,6 +47,7 @@ CAUDALES_TABLA = np.geomspace(10, 1500, 60)
 # --- Video ---
 FPS = 30
 CARPETA_FRAMES = "salida/frames"
+AUDIO = "salida/sonido.wav"
 VIDEO_SALIDA = "simulacion_rio_chambo.mp4"
 PORTADA = "portada_chambo.jpg"
 TABLA = "secciones_pico_chambo.csv"
@@ -366,6 +369,53 @@ def dibujar_frame(args):
     dibujar(i, dia, azimut, f"{CARPETA_FRAMES}/f{i:04d}.png")
 
 
+# ---------------------------------------------------------------- sonido
+def generar_audio(dias, ruta, sr=44100):
+    """Sonido propio, sin derechos de autor: un río que crece con el caudal,
+    un fondo grave que sube la tensión y un golpe cuando llega el pico."""
+    rng = np.random.default_rng(7)
+    n = int(len(dias) / FPS * sr)
+    t = np.arange(n) / sr
+    q = np.interp(dias, G["dias_evento"], G["evento"].caudal_m3s)
+    fuerza = np.interp(t, np.arange(len(dias)) / FPS, (q - q.min()) / (q.max() - q.min()))
+
+    def ruido(corte, tipo):
+        sos = butter(2, corte, btype=tipo, fs=sr, output="sos")
+        r = np.stack([sosfilt(sos, rng.standard_normal(n)) for _ in range(2)], axis=1)
+        return r / r.std()
+
+    # Río: ruido grave (corriente) + agudo (espuma) que aparece con las crecidas
+    remolino = 1 + 0.25 * np.interp(t, np.linspace(0, t[-1], 80), rng.standard_normal(80))
+    rio = ruido(600, "lowpass") * ((0.2 + 0.8 * fuerza) * remolino)[:, None]
+    espuma = ruido([1500, 6000], "bandpass") * (fuerza ** 2)[:, None]
+
+    # Fondo: acorde de La menor; el Do se suma a medida que sube el caudal
+    fondo = np.zeros((n, 2))
+    for f, peso in ((55.0, 1.0), (110.0, 0.7), (164.81, 0.5), (220.0, 0.35), (261.63, 0.0)):
+        peso_t = peso + (0.4 * fuerza if f == 261.63 else 0)
+        for canal, desafino in ((0, -0.3), (1, 0.3)):
+            fondo[:, canal] += peso_t * np.sin(2 * np.pi * (f + desafino) * t)
+    fondo *= np.clip(t / 2, 0, 1)[:, None]
+
+    # Golpe grave al llegar al pico
+    t_pico = np.argmax(dias >= 0) / FPS
+    tg = np.clip(t - t_pico, 0, None)
+    activo = (t >= t_pico)
+    barrido = np.sin(2 * np.pi * np.cumsum(35 + 55 * np.exp(-tg / 0.25)) / sr)
+    golpe = (barrido * np.exp(-tg / 0.6) * activo)[:, None] + \
+        ruido(250, "lowpass") * (np.exp(-tg / 0.25) * activo)[:, None] * 0.4
+
+    mezcla = 0.5 * rio + 0.18 * espuma + 0.06 * fondo + 0.8 * golpe
+    mezcla *= np.clip(t / 0.3, 0, 1)[:, None] * np.clip((t[-1] - t) / 1.5, 0, 1)[:, None]
+    mezcla = mezcla / np.abs(mezcla).max() * 0.9
+
+    with wave.open(ruta, "wb") as w:
+        w.setnchannels(2)
+        w.setsampwidth(2)
+        w.setframerate(sr)
+        w.writeframes((mezcla * 32767).astype("<i2").tobytes())
+
+
 if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     os.makedirs(CARPETA_FRAMES, exist_ok=True)
@@ -392,10 +442,12 @@ if __name__ == "__main__":
         pool.map(dibujar_frame, list(zip(range(len(dias)), dias, azimuts)))
 
     dibujar(0, 0.0, -85, PORTADA)
+    generar_audio(dias, AUDIO)
     subprocess.run([
         "ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
-        "-i", f"{CARPETA_FRAMES}/f%04d.png",
-        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20", "-movflags", "+faststart",
-        VIDEO_SALIDA,
+        "-i", f"{CARPETA_FRAMES}/f%04d.png", "-i", AUDIO,
+        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20",
+        "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-c:a", "aac", "-b:a", "192k", "-ar", "44100",
+        "-shortest", "-movflags", "+faststart", VIDEO_SALIDA,
     ], check=True)
     print("Listo:", VIDEO_SALIDA)

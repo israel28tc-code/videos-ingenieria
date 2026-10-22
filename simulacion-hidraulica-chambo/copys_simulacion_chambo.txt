@@ -1,4 +1,4 @@
-VIDEO: simulacion_rio_chambo.mp4 (1080x1920, 19 s, SIN audio: ponle una canción o sonido al publicar)
+VIDEO: simulacion_rio_chambo.mp4 (1080x1920, 19 s, audio propio: río + fondo grave + golpe en el pico, sin derechos de autor)
 PORTADA: portada_chambo.jpg
 
 === TikTok / Instagram / Facebook ===
@@ -24,4 +24,5 @@ Descripción: el mismo texto de arriba.
 - Limitaciones: el DEM no ve el fondo del cauce bajo el agua, y no es un modelo de remanso (HEC-RAS) ni 2D.
 
 === Sonido ===
-El video no trae audio. En TikTok o Instagram agrégale una canción o un sonido de agua/río al publicar.
+El video ya trae audio propio: el ruido del río sube y baja con el caudal del hidrograma y hay un golpe grave al llegar al pico (segundo 9).
+Si le pones una canción en TikTok: sonido original ~60 % y canción ~25 %.

@@ -4,7 +4,7 @@ Simula la creciente del 28 de febrero de 1988 del río Chambo (Chimborazo, Ecuad
 
 | Archivo | Qué es |
 |---|---|
-| `simulacion_rio_chambo.mp4` | El video (19 s, sin audio) |
+| `simulacion_rio_chambo.mp4` | El video (19 s, con audio propio sin derechos de autor) |
 | `portada_chambo.jpg` | Portada: el pico de la creciente |
 | `copys_simulacion_chambo.txt` | Textos para publicar y datos para responder comentarios |
 | `secciones_pico_chambo.csv` | Resultado por sección al pico: cota de fondo, nivel de agua, calado, ancho |
