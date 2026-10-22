@@ -1,0 +1,27 @@
+VIDEO: simulacion_rio_chambo.mp4 (1080x1920, 19 s, SIN audio: ponle una canción o sonido al publicar)
+PORTADA: portada_chambo.jpg
+
+=== TikTok / Instagram / Facebook ===
+¿Hasta dónde subió el río Chambo en la creciente de 1988? 🌊 Lo simulé con datos reales.
+El 28 de febrero de 1988 el río llevó unos 660 m³/s, casi 7 veces su caudal normal. Es una creciente con un periodo de retorno de unos 24 años. En la sección más ancha el agua llegó a 2,8 m de profundidad y 230 m de ancho.
+Terreno satelital de 30 m + caudales diarios desde 1940 + ecuación de Manning.
+¿Qué río de tu ciudad quieres que simule? 👇
+📊 Fuentes: Copernicus DEM (ESA) y GEOGLOWS (ECMWF). Simulación educativa, no es un estudio oficial de riesgo.
+#riochambo #chimborazo #riobamba #ecuador #ingenieriacivil #hidraulica #simulacion #ingeniero #crecientes #datos
+
+=== YouTube Shorts ===
+Título: Simulé la creciente del río Chambo de 1988 con datos reales 🌊 #Shorts
+Descripción: el mismo texto de arriba.
+
+=== Datos usados (para responder comentarios) ===
+- Tramo: río Chambo entre Chambo y Penipe (Chimborazo), 7,9 km, 89 secciones transversales cada 90 m.
+- Terreno: Copernicus DEM GLO-30 (resolución 30 m). Pendiente media del tramo: 0,78 %.
+- Caudales: GEOGLOWS v2, simulación diaria 1940–2026 (reanálisis ERA5). Son caudales simulados, no medidos en una estación del INAMHI.
+- Caudal normal (mediana desde 1980): ~95 m³/s. Promedio: ~111 m³/s.
+- Pico del 28-feb-1988: 660 m³/s, el mayor desde 1980.
+- Periodos de retorno (Gumbel): Tr 2 = 374 · Tr 10 = 566 · Tr 25 = 662 · Tr 100 = 805 m³/s. Tr 24 años = 4 % de probabilidad cada año.
+- Modelo: flujo uniforme 1D (Manning n = 0,045). Profundidad media al pico: 3,3 m. Área con agua: 40 ha normal → 81 ha al pico.
+- Limitaciones: el DEM no ve el fondo del cauce bajo el agua, y no es un modelo de remanso (HEC-RAS) ni 2D.
+
+=== Sonido ===
+El video no trae audio. En TikTok o Instagram agrégale una canción o un sonido de agua/río al publicar.
